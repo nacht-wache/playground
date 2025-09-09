@@ -8,12 +8,12 @@ inline void * AlignedAllocWrapper(std::align_val_t alignment, size_t size) {
     return _aligned_malloc(size, alignment);
 }
 
-inline void aligned_free_wrapper(void * ptr) {
+inline void AlignedFreeWrapper(void * ptr) {
     _aligned_free(ptr);
 }
 
-#define ALIGNED_ALLOC(alignment, size) aligned_alloc_wrapper(alignment, size)
-#define ALIGNED_FREE(ptr) aligned_free_wrapper(ptr)
+#define ALIGNED_ALLOC(alignment, size) AlignedAllocWrapper(alignment, size)
+#define ALIGNED_FREE(ptr) AlignedFreeWrapper(ptr)
 
 #elif __cplusplus >= 201703L
 #define ALIGNED_ALLOC(alignment, size) std::aligned_alloc(alignment, size)
