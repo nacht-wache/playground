@@ -1,4 +1,4 @@
-name: Windows CL
+name: Windows MSVC Build
 
 on:
   push:
