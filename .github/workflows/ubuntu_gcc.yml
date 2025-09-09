@@ -1,0 +1,14 @@
+name: Ubuntu GCC Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  call-workflow:
+    uses: ./.github/workflows/ubuntu_base.yml
+    with:
+      c_compiler: gcc
+      cpp_compiler: g++

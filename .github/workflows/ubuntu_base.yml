@@ -1,0 +1,47 @@
+name: Ubuntu Base Build
+
+on:
+  workflow_call:
+    inputs:
+      c_compiler:
+        required: true
+        type: string
+        description: 'The C compiler to use (e.g., gcc, clang-17)'
+      cpp_compiler:
+        required: true
+        type: string
+        description: 'The C++ compiler to use (e.g., g++, clang++-17)'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set reusable strings
+        id: strings
+        shell: bash
+        run: |
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+      - name: Install Clang (if needed)
+        if: contains(inputs.c_compiler, 'clang')
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 17
+
+      - name: Configure CMake
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=${{ inputs.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ inputs.c_compiler }}
+          -DCMAKE_BUILD_TYPE=Release
+          -S ${{ github.workspace }}
+
+      - name: Build
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
+
+      - name: Test
+        working-directory: ${{ steps.strings.outputs.build-output-dir }}
+        run: ctest --build-config Release
