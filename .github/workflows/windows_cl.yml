@@ -1,0 +1,46 @@
+name: Windows CL
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Release]
+        c_compiler: [cl]
+        cpp_compiler: [cl]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set reusable strings
+        id: strings
+        shell: bash
+        run: |
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+      - name: Configure CMake
+        # На Windows, CMake использует многоконфигурационные генераторы (например, Visual Studio).
+        # Поэтому тип сборки (Release/Debug) указывается при сборке, а не при конфигурации.
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -S ${{ github.workspace }}
+
+      - name: Build
+        # --config ${{ matrix.build_type }} необходим для многоконфигурационных генераторов,
+        # чтобы указать, какую конфигурацию нужно собрать (например, "Release").
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+
+      - name: Test
+        working-directory: ${{ steps.strings.outputs.build-output-dir }}
+        # Аналогично, --build-config ${{ matrix.build_type }} нужен для ctest.
+        run: ctest --build-config ${{ matrix.build_type }}
