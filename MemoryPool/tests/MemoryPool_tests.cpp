@@ -4,14 +4,14 @@
 class TestClass {
  public:
   // Counter to check if constructor and destructor are called
-  static inline int m_instanceCount = 0;
+  static inline int mInstanceCount = 0;
 
   TestClass() {
-    ++m_instanceCount;
+    ++mInstanceCount;
   }
 
   ~TestClass() {
-    --m_instanceCount;
+    --mInstanceCount;
   }
 };
 
@@ -19,7 +19,7 @@ class TestClass {
 class MemoryPoolTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    TestClass::m_instanceCount = 0;
+    TestClass::mInstanceCount = 0;
   }
 };
 
@@ -52,7 +52,7 @@ TEST_F(MemoryPoolTest, Destruction) {
   constexpr size_t kPoolSize = 20;
   MemoryPool<TestClass> pool(kPoolSize);
 
-  ASSERT_EQ(TestClass::m_instanceCount, 0);
+  ASSERT_EQ(TestClass::mInstanceCount, 0);
 
   std::vector<TestClass*> allocatedPtrs;
 
@@ -62,14 +62,14 @@ TEST_F(MemoryPoolTest, Destruction) {
     ASSERT_NE(ptr, nullptr);
     allocatedPtrs.push_back(ptr);
   }
-  ASSERT_EQ(TestClass::m_instanceCount, 5);
+  ASSERT_EQ(TestClass::mInstanceCount, 5);
 
   // Free the allocated objects and check if destructors are called
   for (auto ptr : allocatedPtrs) {
     pool.Free(ptr);
   }
 
-  ASSERT_EQ(TestClass::m_instanceCount, 0);
+  ASSERT_EQ(TestClass::mInstanceCount, 0);
 }
 
 // Test case for freeing memory

@@ -33,7 +33,7 @@ jobs:
       - name: Check formatting with clang-format
         if: contains(inputs.c_compiler, 'clang')
         run: |
-          find . -name "*.cpp" -o -name "*.h" | xargs clang-format-17 --Werror --dry-run --style=file
+          find . -not -path "./_deps/*" -name "*.cpp" -o -name "*.h" | xargs clang-format-17 --Werror --dry-run --style=file
 
       - name: Configure CMake
         run: >
@@ -47,7 +47,7 @@ jobs:
       - name: Run clang-tidy
         if: contains(inputs.c_compiler, 'clang')
         run: |
-          run-clang-tidy-17.py -p ${{ steps.strings.outputs.build-output-dir }} -header-filter=".*"
+          find . -not -path "./_deps/*" -not -path "./build/*" -name "*.cpp" | xargs run-clang-tidy-17.py -p ${{ steps.strings.outputs.build-output-dir }}
 
       - name: Build
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
