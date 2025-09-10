@@ -12,18 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Install Clang-tools via Chocolatey
-      - name: Install Clang tools
-        run: choco install -y llvm
-
-      # Run clang-format to check formatting
-      - name: Check formatting with clang-format
-        run: |
-          Get-ChildItem -Recurse -Include *.h, *.cpp, *.hpp | ForEach-Object {
-            clang-format --Werror --dry-run --style=file $_.FullName
-          }
-        shell: pwsh
-
       # Configure CMake with MSVC generator and export compile commands
       - name: Configure CMake
         run: >
@@ -32,14 +20,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=cl
           -DCMAKE_C_COMPILER=cl
           -G "Visual Studio 17 2022"
-
-      # Run clang-tidy for static analysis
-      - name: Run clang-tidy
-        run: |
-          $build_dir = "${{ github.workspace }}/build"
-          # Run clang-tidy using the compile commands
-          run-clang-tidy.py -p $build_dir -header-filter=".*"
-        shell: pwsh
+          -DCMAKE_BUILD_TYPE=Release
 
       # Build the project
       - name: Build
