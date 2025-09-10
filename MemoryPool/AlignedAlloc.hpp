@@ -1,6 +1,8 @@
 #pragma once
 #include <cstdlib>
 
+// clang-format off
+
 #ifdef _MSC_VER
 #include <malloc.h>
 
@@ -25,3 +27,5 @@ inline void AlignedFreeWrapper(void* ptr) {
 #define ALIGNED_FREE(ptr) free(ptr)
 
 #endif // _MSC_VER
+
+// clang-format on
