@@ -4,12 +4,12 @@
 #ifdef _MSC_VER
 #include <malloc.h>
 
-inline void * AlignedAllocWrapper(std::align_val_t alignment, size_t size) {
-    return _aligned_malloc(size, alignment);
+inline void* AlignedAllocWrapper(std::align_val_t alignment, size_t size) {
+  return _aligned_malloc(size, alignment);
 }
 
-inline void AlignedFreeWrapper(void * ptr) {
-    _aligned_free(ptr);
+inline void AlignedFreeWrapper(void* ptr) {
+  _aligned_free(ptr);
 }
 
 #define ALIGNED_ALLOC(alignment, size) AlignedAllocWrapper(alignment, size)
