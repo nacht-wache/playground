@@ -5,7 +5,7 @@
 #include <malloc.h>
 
 inline void* AlignedAllocWrapper(std::align_val_t alignment, size_t size) {
-  return _aligned_malloc(size, alignment);
+  return _aligned_malloc(size, static_cast<size_t>(alignment));
 }
 
 inline void AlignedFreeWrapper(void* ptr) {
