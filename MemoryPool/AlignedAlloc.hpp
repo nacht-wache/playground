@@ -6,8 +6,8 @@
 #ifdef _MSC_VER
 #include <malloc.h>
 
-inline void* AlignedAllocWrapper(std::align_val_t alignment, size_t size) {
-  return _aligned_malloc(size, static_cast<size_t>(alignment));
+inline void* AlignedAllocWrapper(size_t alignment, size_t size) {
+  return _aligned_malloc(size, alignment);
 }
 
 inline void AlignedFreeWrapper(void* ptr) {
