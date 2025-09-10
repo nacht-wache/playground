@@ -27,8 +27,6 @@ jobs:
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
       - name: Configure CMake
-        # На Windows, CMake использует многоконфигурационные генераторы (например, Visual Studio).
-        # Поэтому тип сборки (Release/Debug) указывается при сборке, а не при конфигурации.
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
@@ -36,11 +34,8 @@ jobs:
           -S ${{ github.workspace }}
 
       - name: Build
-        # --config ${{ matrix.build_type }} необходим для многоконфигурационных генераторов,
-        # чтобы указать, какую конфигурацию нужно собрать (например, "Release").
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
       - name: Test
         working-directory: ${{ steps.strings.outputs.build-output-dir }}
-        # Аналогично, --build-config ${{ matrix.build_type }} нужен для ctest.
         run: ctest --build-config ${{ matrix.build_type }}
