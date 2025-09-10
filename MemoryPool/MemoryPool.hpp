@@ -34,6 +34,12 @@ public:
   }
 
   ~MemoryPool() noexcept {
+    while (m_freeBlock > 0) {
+      auto ptr = reinterpret_cast<T*>(m_data) + m_freeBlock;
+      std::destroy_at(ptr);
+      --m_freeBlock;
+    }
+
     operator delete [](m_data, std::align_val_t{kAlignment});
   }
 
