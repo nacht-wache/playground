@@ -24,12 +24,16 @@ jobs:
         run: |
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-      - name: Install Clang (if needed)
+      - name: Install Clang tools
         if: contains(inputs.c_compiler, 'clang')
         run: |
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 17
+          sudo apt-get update
+          sudo apt-get install -y clang-format-17 clang-tidy-17
+
+      - name: Check formatting with clang-format
+        if: contains(inputs.c_compiler, 'clang')
+        run: |
+          find . -name "*.cpp" -o -name "*.h" | xargs clang-format-17 --Werror --dry-run --style=file
 
       - name: Configure CMake
         run: >
@@ -38,6 +42,12 @@ jobs:
           -DCMAKE_C_COMPILER=${{ inputs.c_compiler }}
           -DCMAKE_BUILD_TYPE=Release
           -S ${{ github.workspace }}
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: Run clang-tidy
+        if: contains(inputs.c_compiler, 'clang')
+        run: |
+          run-clang-tidy-17.py -p ${{ steps.strings.outputs.build-output-dir }} -header-filter=".*"
 
       - name: Build
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
