@@ -37,8 +37,9 @@ jobs:
       - name: Run clang-tidy
         run: |
           $build_dir = "${{ github.workspace }}/build"
+          # Run clang-tidy using the compile commands
           run-clang-tidy.py -p $build_dir -header-filter=".*"
-        shell: python
+        shell: pwsh
 
       # Build the project
       - name: Build
