@@ -13,8 +13,9 @@ public:
     MemoryPool& pool;
 
     void operator()(T* ptr) noexcept(false) {
-      if (pool.m_freeBlock == 0)
+      if (pool.m_freeBlock == 0) {
         throw std::logic_error{"Call of FreeBlockDeleter to full Pool!"};
+      }
 
       std::destroy_at(ptr);
       --pool.m_freeBlock;
@@ -50,8 +51,9 @@ public:
 public:
   template <typename... U>
   [[nodiscard]] T* Allocate(U&&... args) {
-    if (m_freeBlock == m_size)
+    if (m_freeBlock == m_size) {
       return nullptr;
+}
 
     auto ptr = reinterpret_cast<T*>(m_data) + m_freeBlock;
     new(ptr) T(std::forward<U>(args)...);
@@ -60,9 +62,10 @@ public:
   }
 
   template <typename... U>
-  [[nodiscard]] Unique allocateSmart(U&&... args) {
-    if (m_freeBlock == m_size)
+  [[nodiscard]] Unique AllocateSmart(U&&... args) {
+    if (m_freeBlock == m_size) {
       return CreateUnique(nullptr);
+}
 
     auto ptr = reinterpret_cast<T*>(m_data) + m_freeBlock;
     new(ptr) T(std::forward<U>(args)...);
@@ -72,11 +75,13 @@ public:
   }
 
   void Free(T* ptr) noexcept(false) {
-    if (!ptr)
+    if (ptr == nullptr) {
       return;
+}
 
-    if (m_freeBlock == 0)
+    if (m_freeBlock == 0) {
       throw std::logic_error{"Call of free to full Pool!"};
+}
 
     std::destroy_at(ptr);
     --m_freeBlock;
@@ -98,4 +103,4 @@ private:
 };
 
 template <typename T>
-using unique_v = std::vector<typename MemoryPool<T>::Unique>;
+using UniqueV = std::vector<typename MemoryPool<T>::Unique>;
