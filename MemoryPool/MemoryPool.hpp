@@ -53,7 +53,7 @@ public:
   [[nodiscard]] T* Allocate(U&&... args) {
     if (m_freeBlock == m_size) {
       return nullptr;
-}
+    }
 
     auto ptr = reinterpret_cast<T*>(m_data) + m_freeBlock;
     new(ptr) T(std::forward<U>(args)...);
@@ -65,7 +65,7 @@ public:
   [[nodiscard]] Unique AllocateSmart(U&&... args) {
     if (m_freeBlock == m_size) {
       return CreateUnique(nullptr);
-}
+    }
 
     auto ptr = reinterpret_cast<T*>(m_data) + m_freeBlock;
     new(ptr) T(std::forward<U>(args)...);
@@ -77,11 +77,11 @@ public:
   void Free(T* ptr) noexcept(false) {
     if (ptr == nullptr) {
       return;
-}
+    }
 
     if (m_freeBlock == 0) {
       throw std::logic_error{"Call of free to full Pool!"};
-}
+    }
 
     std::destroy_at(ptr);
     --m_freeBlock;
