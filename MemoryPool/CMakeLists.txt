@@ -5,6 +5,7 @@ add_executable(${target_name}
         "MemoryPool.hpp"
         "AlignedAlloc.hpp"
         "OverrideNewDelete.cpp"
+        "FreeList.hpp"
 )
 
 if (MSVC)

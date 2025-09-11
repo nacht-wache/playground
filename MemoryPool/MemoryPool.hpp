@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include "FreeList.hpp"
+
 template <typename T>
 class MemoryPool {
   inline constinit static auto kAlignment = std::alignment_of_v<T>;
@@ -13,12 +15,7 @@ public:
     MemoryPool& pool;
 
     void operator()(T* ptr) noexcept(false) {
-      if (pool.m_freeBlock == 0) {
-        throw std::logic_error{"Call of FreeBlockDeleter to full Pool!"};
-      }
-
-      std::destroy_at(ptr);
-      --pool.m_freeBlock;
+      pool.Free(ptr);
     }
   };
 
@@ -29,17 +26,11 @@ public:
   explicit MemoryPool(std::size_t size) noexcept
     : m_data(static_cast<std::byte*>(operator new[](
           size * sizeof(T), std::align_val_t{kAlignment})))
-      , m_size(size)
-      , m_freeBlock(0) {
+    , m_freeList(m_data, std::align_val_t{kAlignment}, sizeof(T), size){
   }
 
   ~MemoryPool() noexcept {
-    while (m_freeBlock > 0) {
-      auto ptr = reinterpret_cast<T*>(m_data) + m_freeBlock;
-      std::destroy_at(ptr);
-      --m_freeBlock;
-    }
-
+    // it's up to user to return all ptrs for destruction
     operator delete [](m_data, std::align_val_t{kAlignment});
   }
 
@@ -57,40 +48,23 @@ public:
 public:
   template <typename... U>
   [[nodiscard]] T* Allocate(U&&... args) {
-    if (m_freeBlock == m_size) {
+    auto freeBlock = m_freeList.Pop<T>();
+    if (freeBlock == nullptr) {
       return nullptr;
     }
 
-    auto ptr = reinterpret_cast<T*>(m_data) + m_freeBlock;
-    new(ptr) T(std::forward<U>(args)...);
-    ++m_freeBlock;
-    return ptr;
+    new(freeBlock) T(std::forward<U>(args)...);
+    return freeBlock;
   }
 
   template <typename... U>
   [[nodiscard]] Unique AllocateSmart(U&&... args) {
-    if (m_freeBlock == m_size) {
-      return CreateUnique(nullptr);
-    }
-
-    auto ptr = reinterpret_cast<T*>(m_data) + m_freeBlock;
-    new(ptr) T(std::forward<U>(args)...);
-    ++m_freeBlock;
-
-    return this->CreateUnique(ptr);
+    return CreateUnique(Allocate(std::forward<U>(args)...));
   }
 
-  void Free(T* ptr) noexcept(false) {
-    if (ptr == nullptr) {
-      return;
-    }
-
-    if (m_freeBlock == 0) {
-      throw std::logic_error{"Call of free to full Pool!"};
-    }
-
+  void Free(T* ptr) noexcept {
     std::destroy_at(ptr);
-    --m_freeBlock;
+    m_freeList.Push(ptr);
   }
 
 private:
@@ -104,8 +78,7 @@ private:
 
 private:
   std::byte* m_data;
-  size_t m_size;
-  size_t m_freeBlock;
+  FreeList m_freeList;
 };
 
 template <typename T>
