@@ -8,12 +8,14 @@ add_executable(${target_name}
         "FreeList.hpp"
 )
 
-if (MSVC)
-    target_compile_options(${target_name} PRIVATE /fsanitize=address)
-    target_link_options(${target_name} PRIVATE /fsanitize=address)
-else ()
-    target_compile_options(${target_name} PRIVATE -fsanitize=address)
-    target_link_options(${target_name} PRIVATE -fsanitize=address)
+if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    if (MSVC)
+        target_compile_options(${target_name} PRIVATE /fsanitize=address)
+        target_link_options(${target_name} PRIVATE /fsanitize=address)
+    else ()
+        target_compile_options(${target_name} PRIVATE -fsanitize=address)
+        target_link_options(${target_name} PRIVATE -fsanitize=address)
+    endif ()
 endif ()
 
 add_subdirectory(tests)

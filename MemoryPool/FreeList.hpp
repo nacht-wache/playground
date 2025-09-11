@@ -1,17 +1,21 @@
 ﻿#pragma once
+#include <cassert>
 #include <memory>
 #include <new>
 
-template <typename Ptr>
-Ptr * AddPtr(Ptr * ptr, std::size_t value) {
-  return reinterpret_cast<Ptr*>(reinterpret_cast<uintptr_t>(ptr) + static_cast<uintptr_t>(value));
+template<typename Ptr>
+static Ptr* AddPtr(Ptr* ptr, std::size_t b) noexcept {
+  return reinterpret_cast<Ptr *>(reinterpret_cast<uintptr_t>(ptr) + static_cast<uintptr_t>(b));
 }
 
-template <typename Ptr>
-Ptr * Align(Ptr * ptr, std::size_t align, std::size_t size, std::size_t & space) {
-  auto v = static_cast<void *>(ptr);
-  std::align(align, size, v, space);
-  return static_cast<Ptr *>(v);
+template<typename Ptr>
+static Ptr* Align(Ptr* ptr, size_t alignment) noexcept {
+  return reinterpret_cast<Ptr *>((reinterpret_cast<uintptr_t>(ptr) + alignment - 1) & ~(alignment - 1));
+}
+
+template<typename Ptr>
+static Ptr* Align(Ptr* ptr, size_t alignment, size_t offset) noexcept {
+  return Align(AddPtr(ptr, offset), alignment);
 }
 
 class FreeList {
@@ -19,12 +23,13 @@ public:
   FreeList() = delete;
 
   explicit FreeList(std::byte* begin, std::align_val_t alignment, std::size_t size, std::size_t space) noexcept {
+    assert(static_cast<std::size_t>(alignment) >= alignof(uintptr_t));
     auto align = static_cast<size_t>(alignment);
-    auto beg = reinterpret_cast<Node *>(Align(begin, align, space, space));
-    m_head = static_cast<Node *>(beg);
+    auto beg = Align(begin, align);
+    m_head = reinterpret_cast<Node *>(beg);
     auto cur = m_head;
-    while (space != 0) {
-      auto next = Align(AddPtr(cur, size), align, size, space);
+    for (std::size_t i = 1; i < space; ++i) {
+      auto next = Align(AddPtr(cur, size), align);
       cur->next = next;
       cur = next;
     }

@@ -9,8 +9,9 @@ constexpr int kSize = 100;
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
   try {
-    MemoryPool<int> pool{kSize};
-    std::array<int*, kSize> ptrs{nullptr};
+    using Type = int64_t;
+    MemoryPool<Type> pool{kSize};
+    std::array<Type*, kSize> ptrs{nullptr};
     for (int i = 0; i < kSize; ++i) {
       ptrs[i] = pool.Allocate(i);
     }

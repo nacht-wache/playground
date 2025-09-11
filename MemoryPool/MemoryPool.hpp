@@ -7,6 +7,9 @@
 #include "FreeList.hpp"
 
 template <typename T>
+// :(
+// tofo fix
+requires (alignof(T) >= alignof(uintptr_t))
 class MemoryPool {
   inline constinit static auto kAlignment = std::alignment_of_v<T>;
 

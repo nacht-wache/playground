@@ -4,7 +4,7 @@
 #include "../MemoryPool.hpp"
 #include <gtest/gtest.h>
 
-class TestClass {
+class alignas(uintptr_t) TestClass {
  public:
   // Counter to check if constructor and destructor are called
   static inline int mInstanceCount = 0;
@@ -135,7 +135,7 @@ TEST_F(MemoryPoolTest, FullSmartAllocation) {
   MemoryPool<TestClass> pool(kPoolSize);
 
   for (size_t i = 0; i < kPoolSize; ++i) {
-   (void)pool.Allocate();
+    (void)pool.Allocate();
   }
 
   // After filling the pool, the next smart allocation should return a null
