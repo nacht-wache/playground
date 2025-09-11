@@ -1,3 +1,6 @@
+#include <algorithm>
+#include <random>
+
 #include "../MemoryPool.hpp"
 #include <gtest/gtest.h>
 
@@ -40,7 +43,7 @@ TEST_F(MemoryPoolTest, AllocationFull) {
   MemoryPool<TestClass> pool(kPoolSize);
 
   for (size_t i = 0; i < kPoolSize; ++i) {
-    pool.Allocate();
+    (void)pool.Allocate();
   }
 
   // After filling the pool, the next allocation should fail
@@ -64,6 +67,32 @@ TEST_F(MemoryPoolTest, Destruction) {
   }
   ASSERT_EQ(TestClass::mInstanceCount, 5);
 
+  // Free the allocated objects and check if destructors are called
+  for (auto ptr : allocatedPtrs) {
+    pool.Free(ptr);
+  }
+
+  ASSERT_EQ(TestClass::mInstanceCount, 0);
+}
+
+// Test case for shuffled destruction
+TEST_F(MemoryPoolTest, SuffledDestruction) {
+  constexpr size_t kPoolSize = 20;
+  MemoryPool<TestClass> pool(kPoolSize);
+
+  ASSERT_EQ(TestClass::mInstanceCount, 0);
+
+  std::vector<TestClass*> allocatedPtrs;
+
+  // Allocate 5 objects and check if constructors are called
+  for (size_t i = 0; i < 5; ++i) {
+    auto ptr = pool.Allocate();
+    ASSERT_NE(ptr, nullptr);
+    allocatedPtrs.push_back(ptr);
+  }
+  ASSERT_EQ(TestClass::mInstanceCount, 5);
+
+  std::ranges::shuffle(allocatedPtrs, std::mt19937{std::random_device{}()});
   // Free the allocated objects and check if destructors are called
   for (auto ptr : allocatedPtrs) {
     pool.Free(ptr);
@@ -106,7 +135,7 @@ TEST_F(MemoryPoolTest, FullSmartAllocation) {
   MemoryPool<TestClass> pool(kPoolSize);
 
   for (size_t i = 0; i < kPoolSize; ++i) {
-    pool.Allocate();
+   (void)pool.Allocate();
   }
 
   // After filling the pool, the next smart allocation should return a null
