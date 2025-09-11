@@ -1,1 +1,2 @@
-![Ubuntu GCC Build](https://github.com/nacht-wache/playground/actions/workflows/ubuntu_gcc.yml/badge.svg)](https://github.com/nacht-wache/playground/actions/workflows/ubuntu_gcc.yml) [![Ubuntu Clang Build](https://github.com/nacht-wache/playground/actions/workflows/ubuntu_clang.yml/badge.svg)](https://github.com/nacht-wache/playground/actions/workflows/ubuntu_clang.yml)
+[![Ubuntu GCC Build](https://github.com/nacht-wache/playground/actions/workflows/ubuntu_gcc.yml/badge.svg)](https://github.com/nacht-wache/playground/actions/workflows/ubuntu_gcc.yml) 
+[![Ubuntu Clang Build](https://github.com/nacht-wache/playground/actions/workflows/ubuntu_clang.yml/badge.svg)](https://github.com/nacht-wache/playground/actions/workflows/ubuntu_clang.yml)
