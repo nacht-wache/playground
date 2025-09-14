@@ -12,6 +12,7 @@ template <typename T>
 requires (alignof(T) >= alignof(uintptr_t))
 class MemoryPool {
   inline constinit static auto kAlignment = std::alignment_of_v<T>;
+  inline constinit static auto kSize = sizeof(T);
 
 public:
   struct FreeBlockDeleter {
@@ -28,8 +29,8 @@ public:
 public:
   explicit MemoryPool(std::size_t size) noexcept
     : m_data(static_cast<std::byte*>(operator new[](
-          size * sizeof(T), std::align_val_t{kAlignment})))
-    , m_freeList(m_data, std::align_val_t{kAlignment}, sizeof(T), size){
+          size * kSize, std::align_val_t{kAlignment})))
+    , m_freeList(m_data, size){
   }
 
   ~MemoryPool() noexcept {
@@ -51,7 +52,7 @@ public:
 public:
   template <typename... U>
   [[nodiscard]] T* Allocate(U&&... args) {
-    auto freeBlock = m_freeList.Pop<T>();
+    auto freeBlock = m_freeList.Pop();
     if (freeBlock == nullptr) {
       return nullptr;
     }
@@ -81,7 +82,7 @@ private:
 
 private:
   std::byte* m_data;
-  FreeList m_freeList;
+  FreeList<T> m_freeList;
 };
 
 template <typename T>

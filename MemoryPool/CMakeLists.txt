@@ -9,13 +9,8 @@ add_executable(${target_name}
 )
 
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
-    if (MSVC)
-        target_compile_options(${target_name} PRIVATE /fsanitize=address)
-        target_link_options(${target_name} PRIVATE /fsanitize=address)
-    else ()
-        target_compile_options(${target_name} PRIVATE -fsanitize=address)
-        target_link_options(${target_name} PRIVATE -fsanitize=address)
-    endif ()
+    target_compile_options(${target_name} PRIVATE -fsanitize=address)
+    target_link_options(${target_name} PRIVATE -fsanitize=address)
 endif ()
 
 add_subdirectory(tests)

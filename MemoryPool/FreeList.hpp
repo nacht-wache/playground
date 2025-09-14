@@ -9,7 +9,7 @@ static Ptr* AddPtr(Ptr* ptr, std::size_t b) noexcept {
 }
 
 template<typename Ptr>
-static Ptr* Align(Ptr* ptr, size_t alignment) noexcept {
+static Ptr* Align(Ptr* ptr, std::size_t alignment) noexcept {
   assert((alignment & (alignment - 1)) == 0 && "Alignment must be a power of two");
   return reinterpret_cast<Ptr*>((reinterpret_cast<uintptr_t>(ptr) + alignment - 1) & ~(alignment - 1));
 }
@@ -19,19 +19,23 @@ static Ptr* Align(Ptr* ptr, size_t alignment, size_t offset) noexcept {
   return Align(AddPtr(ptr, offset), alignment);
 }
 
+template <typename T>
+requires (alignof(T) >= alignof(uintptr_t))
 class FreeList {
+  inline static constinit auto kAlignment = alignof(T);
+  inline static constinit auto kSize = sizeof(T);
+
 public:
   FreeList() = delete;
 
-  explicit FreeList(std::byte* begin, std::align_val_t alignment, std::size_t size, std::size_t space) noexcept {
-    auto align = static_cast<size_t>(alignment);
-    auto beg = Align(begin, align);
+  explicit FreeList(std::byte* begin, std::size_t space) noexcept {
+    auto beg = Align(begin, kAlignment);
     // begins lifetime of Node
     m_head = new (beg) Node;
     auto cur = m_head;
     for (std::size_t i = 1; i < space; ++i) {
       // begins lifetime of Node
-      auto next = new (Align(AddPtr(cur, size), align)) Node;
+      auto next = new (Align(AddPtr(cur, kSize), kAlignment)) Node;
     // well-defined
       cur->next = next;
       cur = next;
@@ -47,7 +51,6 @@ public:
   FreeList& operator=(FreeList&& other) noexcept = default;
 
 public:
-  template <typename T>
   T * Pop() noexcept {
     auto head = m_head;
     m_head = head ? head->next : nullptr;
@@ -55,7 +58,6 @@ public:
     return reinterpret_cast<T *>(head);
   }
 
-  template <typename T>
   void Push(T * ptr) noexcept {
     // begins lifetime of Node
     auto head = new (ptr) Node;
