@@ -6,6 +6,7 @@ add_executable(${target_name}
         "AlignedAlloc.hpp"
         "OverrideNewDelete.cpp"
         "FreeList.hpp"
+        "AlignUtils.hpp"
 )
 
 if (${CMAKE_BUILD_TYPE} STREQUAL Debug)

@@ -1,12 +1,11 @@
 ﻿#pragma once
 #include <cstddef>
 #include <memory>
-#include <stdexcept>
 #include <vector>
 
 #include "FreeList.hpp"
 
-template <typename T>
+template <typename T, typename FreeList = FreeList<T>>
 // :(
 // todo fix
 requires (alignof(T) >= alignof(uintptr_t))
@@ -82,8 +81,8 @@ private:
 
 private:
   std::byte* m_data;
-  FreeList<T> m_freeList;
+  FreeList m_freeList;
 };
 
-template <typename T>
-using UniqueV = std::vector<typename MemoryPool<T>::Unique>;
+template <typename T, template<typename> typename FreeList>
+using UniqueV = std::vector<typename MemoryPool<T, FreeList<T>>::Unique>;

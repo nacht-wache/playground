@@ -1,24 +1,7 @@
 ﻿#pragma once
-#include <cassert>
-#include <new>
+#include "AlignUtils.hpp"
 
-/// powered by https://github.com/google/filament/blob/main/libs/utils/include/utils/Allocator.h
-template<typename Ptr>
-static Ptr* AddPtr(Ptr* ptr, std::size_t b) noexcept {
-  return reinterpret_cast<Ptr*>(reinterpret_cast<uintptr_t>(ptr) + static_cast<uintptr_t>(b));
-}
-
-template<typename Ptr>
-static Ptr* Align(Ptr* ptr, std::size_t alignment) noexcept {
-  assert((alignment & (alignment - 1)) == 0 && "Alignment must be a power of two");
-  return reinterpret_cast<Ptr*>((reinterpret_cast<uintptr_t>(ptr) + alignment - 1) & ~(alignment - 1));
-}
-
-template<typename Ptr>
-static Ptr* Align(Ptr* ptr, size_t alignment, size_t offset) noexcept {
-  return Align(AddPtr(ptr, offset), alignment);
-}
-
+// LIFO
 template <typename T>
 requires (alignof(T) >= alignof(uintptr_t))
 class FreeList {
@@ -35,12 +18,11 @@ public:
     auto cur = m_head;
     for (std::size_t i = 1; i < space; ++i) {
       // begins lifetime of Node
-      auto next = new (Align(AddPtr(cur, kSize), kAlignment)) Node;
-    // well-defined
-      cur->next = next;
-      cur = next;
+      m_head = std::construct_at(Align(AddPtr(cur, kSize), kAlignment));
+      // well-defined
+      m_head->next = cur;
+      cur = m_head;
     }
-    cur->next = nullptr;
   }
 
   ~FreeList() = default;
