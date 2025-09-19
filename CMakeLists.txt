@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project("playground")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 if (MSVC)
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -27,4 +28,6 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(googletest)
 
+include(AddTest)
 add_subdirectory(MemoryPool)
+add_subdirectory(Graph)
