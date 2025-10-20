@@ -99,51 +99,51 @@ TEST(ObserverTest, SetHappinessNoChange) {
 }
 
 TEST(ManTest, HappinessBoundsCheck) {
-  auto man_high = Man::CreateMe("High", 10);
-  EXPECT_EQ(man_high->GetHappiness(), 9);
+  auto manHigh = Man::CreateMe("High", 10);
+  EXPECT_EQ(manHigh->GetHappiness(), 9);
 
-  auto man_setter = Man::CreateMe("Setter", 7);
-  EXPECT_EQ(man_setter->GetHappiness(), 7);
+  auto manSetter = Man::CreateMe("Setter", 7);
+  EXPECT_EQ(manSetter->GetHappiness(), 7);
 
-  man_setter->SetHappiness(15);
-  EXPECT_EQ(man_setter->GetHappiness(), 9);
+  manSetter->SetHappiness(15);
+  EXPECT_EQ(manSetter->GetHappiness(), 9);
 
-  man_setter->SetHappiness(5);
-  EXPECT_EQ(man_setter->GetHappiness(), 5);
+  manSetter->SetHappiness(5);
+  EXPECT_EQ(manSetter->GetHappiness(), 5);
 }
 
 TEST(SettleTest, MoveBetweenSettlements) {
-  auto old_city = City::CreateMe("OldCity");
-  auto new_city = City::CreateMe("NewCity");
+  auto oldCity = City::CreateMe("OldCity");
+  auto newCity = City::CreateMe("NewCity");
   auto man = Man::CreateMe("Eve", 100);
 
-  man->Settle(old_city.get());
-  EXPECT_EQ(old_city->GetPeopleCount(), 1);
-  EXPECT_EQ(old_city->GetHappiness(), 9);  // Ожидаем 9
+  man->Settle(oldCity.get());
+  EXPECT_EQ(oldCity->GetPeopleCount(), 1);
+  EXPECT_EQ(oldCity->GetHappiness(), 9);  // Ожидаем 9
 
-  man->Settle(new_city.get());
+  man->Settle(newCity.get());
 
-  EXPECT_EQ(old_city->GetPeopleCount(), 0);
-  EXPECT_EQ(old_city->GetHappiness(), 0);
+  EXPECT_EQ(oldCity->GetPeopleCount(), 0);
+  EXPECT_EQ(oldCity->GetHappiness(), 0);
 
-  EXPECT_EQ(new_city->GetPeopleCount(), 1);
-  EXPECT_EQ(new_city->GetHappiness(), 9);  // Ожидаем 9
+  EXPECT_EQ(newCity->GetPeopleCount(), 1);
+  EXPECT_EQ(newCity->GetHappiness(), 9);  // Ожидаем 9
 }
 
 TEST(CreateTest, CustomDeleterCallsSettle) {
   auto city = City::CreateMe("TestCity");
 
-  std::weak_ptr<Man> weak_man;
+  std::weak_ptr<Man> weakMan;
 
   {
     auto man = city->Create("Temporary", 50);
-    weak_man = man;
+    weakMan = man;
 
     EXPECT_EQ(city->GetPeopleCount(), 1);
     EXPECT_EQ(city->GetHappiness(), 9);  // Ожидаем 9
   }
 
-  EXPECT_TRUE(weak_man.expired());
+  EXPECT_TRUE(weakMan.expired());
   EXPECT_EQ(city->GetPeopleCount(), 0);
   EXPECT_EQ(city->GetHappiness(), 0);
 }
