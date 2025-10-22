@@ -2,7 +2,7 @@
 #include "../Simulator.hpp"
 
 TEST(ManTest, CreationAndBasicCalculation) {
-  auto man = Man::CreateMe("John Doe", 75);
+  const auto man = Man::CreateMe("John Doe", 75);
 
   ASSERT_NE(man, nullptr);
   EXPECT_EQ(man->GetPeopleCount(), 1);
@@ -11,7 +11,7 @@ TEST(ManTest, CreationAndBasicCalculation) {
 }
 
 TEST(CityTest, AggregationAndAverageHappiness) {
-  auto city = City::CreateMe("Atlantis");
+  const auto city = City::CreateMe("Atlantis");
 
   auto man1 = city->Create("Alice", 80);
   auto man2 = city->Create("Bob", 60);
@@ -28,7 +28,7 @@ TEST(CityTest, AggregationAndAverageHappiness) {
 }
 
 TEST(CityTest, EmptyCityAverage) {
-  auto city = City::CreateMe("GhostTown");
+  const auto city = City::CreateMe("GhostTown");
 
   EXPECT_EQ(city->GetPeopleCount(), 0);
   EXPECT_EQ(city->GetHappiness(), 0);
@@ -36,9 +36,9 @@ TEST(CityTest, EmptyCityAverage) {
 }
 
 TEST(ObserverTest, HappinessChangePropagation) {
-  auto country = Country::CreateMe("Nation");
-  auto city = country->Create("Capital");
-  auto man = city->Create("Dave", 5);
+  const auto country = Country::CreateMe("Nation");
+  const auto city = country->Create("Capital");
+  const auto man = city->Create("Dave", 5);
 
   EXPECT_EQ(man->GetHappiness(), 5);
   EXPECT_EQ(city->GetHappiness(), 5);
@@ -58,9 +58,9 @@ TEST(ObserverTest, HappinessChangePropagation) {
 }
 
 TEST(ObserverTest, HappinessDecreasePropagation) {
-  auto country = Country::CreateMe("Nation");
-  auto city = country->Create("Capital");
-  auto man = city->Create("Dave", 9);  // Начинаем с максимального счастья
+  const auto country = Country::CreateMe("Nation");
+  const auto city = country->Create("Capital");
+  const auto man = city->Create("Dave", 9);  // Начинаем с максимального счастья
 
   EXPECT_EQ(man->GetHappiness(), 9);
   EXPECT_EQ(city->GetHappiness(), 9);
@@ -79,9 +79,9 @@ TEST(ObserverTest, HappinessDecreasePropagation) {
 }
 
 TEST(ObserverTest, SetHappinessNoChange) {
-  auto country = Country::CreateMe("Nation");
-  auto city = country->Create("Capital");
-  auto man = city->Create("Dave", 5);
+  const auto country = Country::CreateMe("Nation");
+  const auto city = country->Create("Capital");
+  const auto man = city->Create("Dave", 5);
 
   EXPECT_EQ(man->GetHappiness(), 5);
   EXPECT_EQ(city->GetHappiness(), 5);
@@ -99,10 +99,10 @@ TEST(ObserverTest, SetHappinessNoChange) {
 }
 
 TEST(ManTest, HappinessBoundsCheck) {
-  auto manHigh = Man::CreateMe("High", 10);
+  const auto manHigh = Man::CreateMe("High", 10);
   EXPECT_EQ(manHigh->GetHappiness(), 9);
 
-  auto manSetter = Man::CreateMe("Setter", 7);
+  const auto manSetter = Man::CreateMe("Setter", 7);
   EXPECT_EQ(manSetter->GetHappiness(), 7);
 
   manSetter->SetHappiness(15);
@@ -113,8 +113,8 @@ TEST(ManTest, HappinessBoundsCheck) {
 }
 
 TEST(SettleTest, MoveBetweenSettlements) {
-  auto oldCity = City::CreateMe("OldCity");
-  auto newCity = City::CreateMe("NewCity");
+  const auto oldCity = City::CreateMe("OldCity");
+  const auto newCity = City::CreateMe("NewCity");
   auto man = Man::CreateMe("Eve", 100);
 
   man->Settle(oldCity.get());
@@ -131,12 +131,12 @@ TEST(SettleTest, MoveBetweenSettlements) {
 }
 
 TEST(CreateTest, CustomDeleterCallsSettle) {
-  auto city = City::CreateMe("TestCity");
+  const auto city = City::CreateMe("TestCity");
 
   std::weak_ptr<Man> weakMan;
 
   {
-    auto man = city->Create("Temporary", 50);
+    const auto man = city->Create("Temporary", 50);
     weakMan = man;
 
     EXPECT_EQ(city->GetPeopleCount(), 1);

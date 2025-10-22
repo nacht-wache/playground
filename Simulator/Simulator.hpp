@@ -113,7 +113,7 @@ class TBase : public IHandle {
           locked->m_happiness += diff;
         }
 
-        if (auto locked = m_observer.lock()) {
+        if (const auto locked = m_observer.lock()) {
           locked->OnChange(diff);
         }
       }
@@ -121,15 +121,14 @@ class TBase : public IHandle {
       void OnMove(IHandle& handle, MoveType type) override {
         if (auto locked = obj.lock()) {
           auto const happiness = handle.GetHappiness();
-          locked->m_happiness +=
-              (type == MoveType::out ? -happiness : happiness);
+          locked->m_happiness += type == MoveType::out ? -happiness : happiness;
 
           auto const peopleCount = handle.GetPeopleCount();
           locked->m_peopleSize +=
-              (type == MoveType::out ? -peopleCount : +peopleCount);
+              type == MoveType::out ? -peopleCount : +peopleCount;
         }
 
-        if (auto locked = m_observer.lock()) {
+        if (const auto locked = m_observer.lock()) {
           locked->OnMove(handle, type);
         }
       }
@@ -165,7 +164,7 @@ class TBase : public IHandle {
 };
 }  // namespace detail
 
-class Man : public detail::TBase<Man, std::false_type, City> {
+class Man final : public detail::TBase<Man, std::false_type, City> {
   using BaseT = detail::TBase<Man, std::false_type, City>;
   using ThisT = Man;
 
@@ -176,24 +175,24 @@ class Man : public detail::TBase<Man, std::false_type, City> {
   void SetHappiness(uint8_t happiness);
 };
 
-class City : public detail::TBase<City, Man, Country>,
-             public std::enable_shared_from_this<City> {
+class City final : public detail::TBase<City, Man, Country>,
+                   public std::enable_shared_from_this<City> {
   using BaseT = detail::TBase<City, Man, Country>;
   using ThisT = City;
 
   using BaseT::BaseT;
 };
 
-class Country : public detail::TBase<Country, City, Planet>,
-                public std::enable_shared_from_this<Country> {
+class Country final : public detail::TBase<Country, City, Planet>,
+                      public std::enable_shared_from_this<Country> {
   using BaseT = detail::TBase<Country, City, Planet>;
   using ThisT = Country;
 
   using BaseT::BaseT;
 };
 
-class Planet : public detail::TBase<Planet, Country, std::false_type>,
-               public std::enable_shared_from_this<Planet> {
+class Planet final : public detail::TBase<Planet, Country, std::false_type>,
+                     public std::enable_shared_from_this<Planet> {
   using BaseT = detail::TBase<Planet, Country, std::false_type>;
   using ThisT = Planet;
 
