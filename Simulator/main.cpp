@@ -4,24 +4,25 @@
 int main() {
   auto earth = Planet::CreateMe("Earth");
   auto belarus = earth->Create("Belarus");
-  belarus->Print(std::cout);
+  std::cout << *belarus << std::endl;
   auto minsk = belarus->Create("Minsk");
   auto ivan = minsk->Create("Ivan");
   ivan->SetHappiness(9);
-  minsk->Print(std::cout);
-  belarus->Print(std::cout);
+  std::cout << *ivan << std::endl;
+  std::cout << *belarus << std::endl;
 
   auto oleg = minsk->Create("Oleg", 6);
-  oleg->Print(std::cout);
+  std::cout << *oleg << std::endl;
   auto brest = belarus->Create("Brest");
   ivan->Settle(brest.get());
-  brest->Print(std::cout);
-  belarus->Print(std::cout);
+  std::cout << *brest << std::endl;
+  std::cout << *belarus << std::endl;
   brest.reset();
   oleg->Settle(minsk.get());
-  // city1->Print(std::cout);
-  minsk->Print(std::cout);
-  belarus->Print(std::cout);
+  if (brest)
+    std::cout << *brest << std::endl;
+  std::cout << *minsk << std::endl;
+  std::cout << *belarus << std::endl;
 
   return 0;
 }
