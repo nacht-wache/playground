@@ -21,9 +21,9 @@ class Planet;
 struct IHandle {
   virtual ~IHandle() = default;
 
-  [[nodiscard]] virtual std::size_t CalculateHappiness() const = 0;
-  [[nodiscard]] virtual std::size_t GetHappiness() const = 0;
-  [[nodiscard]] virtual std::size_t GetPeopleCount() const = 0;
+  [[nodiscard]] virtual std::size_t CalculateHappiness() const noexcept = 0;
+  [[nodiscard]] virtual std::size_t GetHappiness() const noexcept = 0;
+  [[nodiscard]] virtual std::size_t GetPeopleCount() const noexcept = 0;
 
   [[nodiscard]] virtual std::string_view GetName() const = 0;
 };
@@ -52,18 +52,18 @@ class TBase : public IHandle {
                            std::forward<Args>(args)...);
   }
 
-  [[nodiscard]] std::size_t CalculateHappiness() const override {
+  [[nodiscard]] std::size_t CalculateHappiness() const noexcept override {
     if (m_peopleSize != 0) {
       return m_happiness / m_peopleSize;
     }
     return 0;
   }
 
-  [[nodiscard]] std::size_t GetHappiness() const override {
+  [[nodiscard]] std::size_t GetHappiness() const noexcept override {
     return m_happiness;
   }
 
-  [[nodiscard]] std::size_t GetPeopleCount() const override {
+  [[nodiscard]] std::size_t GetPeopleCount() const noexcept override {
     return m_peopleSize;
   }
 
