@@ -4,13 +4,12 @@
 #include <memory>
 
 /*
- * Базовая идея - использовать дерево наблюдателей на std::weak_ptr-ах с
- * глубиной = 4. Убийство/разрушение - std::shared_ptr::reset c CustomDeleter
- * Переселение и выселение с помощью Settle. nullptr -> выселяемся
- * Переселение за O(1): макс 8 обходов.
- * Выселение за O(1): макс 4 обхода.
- * Расчёт среднего за O(1) за счёт кэширования на уровне объекта (Человек, Город
- * и т.д.)
+ * Basic idea - use a tree of observers based on std::weak_ptr with
+ * a depth of 4. Killing/destruction is done via std::shared_ptr::reset with a CustomDeleter.
+ * Settlement and eviction using Settle. nullptr -> we evict ourselves.
+ * Settlement in O(1): max 8 traversals.
+ * Eviction in O(1): max 4 traversals.
+ * Average calculation in O(1) due to caching at the object level (Person, City, etc.)
  */
 
 class Man;
